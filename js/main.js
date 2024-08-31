@@ -9,6 +9,7 @@ let $editedTodo; // edytowany Todo
 let $popupInput; // tekst wpisywany w inputa w popup'ie
 let $addPopupBtn; // przycisk "zatwierdź" w popup'ie
 let $closeTodoBtn; // przycisk od zamykania popup'a
+let $idNumber = 0;
 
 const main = () => {
 	prepareDOMElements();
@@ -33,12 +34,16 @@ const prepareDOMEvents = () => {
 	$addBtn.addEventListener("click", addNewTask);
 	$ulList.addEventListener("click", checkClick);
 	$closeTodoBtn.addEventListener("click", closePopup);
+	$addPopupBtn.addEventListener("click", changeTodo);
 };
 
+// dodajemy nowy element do listy
 const addNewTask = () => {
 	if ($todoInput.value !== "") {
+		$idNumber++;
 		$newTask = document.createElement("li");
 		$newTask.innerText = $todoInput.value;
+		$newTask.setAttribute("id", `todo-${$idNumber}`);
 		$ulList.appendChild($newTask);
 
 		$todoInput.value = "";
@@ -49,6 +54,7 @@ const addNewTask = () => {
 	}
 };
 
+// tworzymy przyciski edycji, usuwania i "gotowe"
 const createToolsArea = () => {
 	const toolsPanel = document.createElement("div");
 	toolsPanel.classList.add("tools");
@@ -71,23 +77,41 @@ const createToolsArea = () => {
 	toolsPanel.appendChild(deleteBtn);
 };
 
+// zarządzanie kliknięciami w przyciski
 const checkClick = e => {
 	if (e.target.closest("button").classList.contains("complete")) {
 		e.target.closest("li").classList.toggle("completed");
 		e.target.closest("button").classList.toggle("completed");
 	} else if (e.target.closest("button").className === "edit") {
-		editTask();
+		editTask(e);
 	} else if (e.target.closest("button").className === "delete") {
 		console.log("delete");
 	}
 };
 
-const editTask = () => {
+// edycja zadania
+const editTask = e => {
+	const oldTodo = e.target.closest("li").id;
+	$editedTodo = document.getElementById(oldTodo);
+	$popupInput.value = $editedTodo.firstChild.textContent;
 	$popup.style.display = "flex";
 };
 
+// zatwierdzanie popup'a
+const changeTodo = () => {
+	if ($popupInput.value !== "") {
+		$editedTodo.firstChild.textContent = $popupInput.value;
+		$popup.style.display = "none";
+		$popupInfo.innerText = "";
+	} else {
+		$popupInfo.innerText = "Musisz podać jakąś treść!";
+	}
+};
+
+// zamykanie popup'a
 const closePopup = () => {
 	$popup.style.display = "none";
+	$popupInfo.innerText = "";
 };
 
 document.addEventListener("DOMContentLoaded", main);
