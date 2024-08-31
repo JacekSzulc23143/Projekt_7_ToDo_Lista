@@ -10,6 +10,7 @@ let $popupInput; // tekst wpisywany w inputa w popup'ie
 let $addPopupBtn; // przycisk "zatwierdź" w popup'ie
 let $closeTodoBtn; // przycisk od zamykania popup'a
 let $idNumber = 0;
+let $allTasks;
 
 const main = () => {
 	prepareDOMElements();
@@ -27,6 +28,7 @@ const prepareDOMElements = () => {
 	$popupInput = document.querySelector(".popupInput");
 	$addPopupBtn = document.querySelector(".accept");
 	$closeTodoBtn = document.querySelector(".cancel");
+	$allTasks = $ulList.getElementsByTagName("li");
 };
 
 // nadajemy nasłuchiwanie
@@ -35,6 +37,7 @@ const prepareDOMEvents = () => {
 	$ulList.addEventListener("click", checkClick);
 	$closeTodoBtn.addEventListener("click", closePopup);
 	$addPopupBtn.addEventListener("click", changeTodo);
+	$todoInput.addEventListener("keyup", enterCheck);
 };
 
 // dodajemy nowy element do listy
@@ -45,12 +48,22 @@ const addNewTask = () => {
 		$newTask.innerText = $todoInput.value;
 		$newTask.setAttribute("id", `todo-${$idNumber}`);
 		$ulList.appendChild($newTask);
+		// console.log($newTask);
+		// console.log($newTask.id);
+		// console.log($newTask.innerText);
 
 		$todoInput.value = "";
 		$alertInfo.innerText = "";
 		createToolsArea();
 	} else {
 		$alertInfo.innerText = "Wpisz treść zadania!";
+	}
+};
+
+// uruchamiamy metodę addNewTask() przyciskiem enter
+const enterCheck = e => {
+	if (e.keyCode === 13) {
+		addNewTask();
 	}
 };
 
@@ -85,7 +98,7 @@ const checkClick = e => {
 	} else if (e.target.closest("button").className === "edit") {
 		editTask(e);
 	} else if (e.target.closest("button").className === "delete") {
-		console.log("delete");
+		deleteTask(e);
 	}
 };
 
@@ -97,7 +110,7 @@ const editTask = e => {
 	$popup.style.display = "flex";
 };
 
-// zatwierdzanie popup'a
+// zatwierdzanie popup'a (sprawdzamy czy popup nie jest pusty i zmieniamy treść zadania)
 const changeTodo = () => {
 	if ($popupInput.value !== "") {
 		$editedTodo.firstChild.textContent = $popupInput.value;
@@ -108,10 +121,19 @@ const changeTodo = () => {
 	}
 };
 
-// zamykanie popup'a
+// zamykanie popup'a "anuluj"
 const closePopup = () => {
 	$popup.style.display = "none";
 	$popupInfo.innerText = "";
+};
+
+// usuwanie zadania
+const deleteTask = e => {
+	const deleteTodo = e.target.closest("li");
+	deleteTodo.remove();
+	if ($allTasks.length === 0) {
+		$alertInfo.innerText = "Brak zadań na liście.";
+	}
 };
 
 document.addEventListener("DOMContentLoaded", main);
